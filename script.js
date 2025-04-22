@@ -158,11 +158,15 @@ const renderTasks = () => {
       checkbox.type = "checkbox";
       checkbox.id = task.id;
       checkbox.checked = task.completed;
+      
+      // Modificar el evento change para asegurarnos que se llama a la función saveLocal actualizada
       checkbox.addEventListener("change", () => {
         const index = tasks.findIndex((t) => t.id === task.id);
         tasks[index].completed = !tasks[index].completed;
-        saveLocal();
+        saveLocal();  // Ahora llama a la función sobrescrita
+        updateTotals(); // Actualizar totales tras el cambio
       });
+      
       div.innerHTML = `
       <div class="delete">
                 <svg
@@ -208,13 +212,12 @@ const renderTasks = () => {
       deleteBtn.addEventListener("click", () => {
         const index = tasks.findIndex((t) => t.id === task.id);
         tasks.splice(index, 1);
-        saveLocal();
+        saveLocal();  // Llamada a la función sobrescrita
         renderTasks();
+        renderCategories(); // Actualizar también las categorías
+        updateTotals();
       });
     });
-
-    renderCategories();
-    updateTotals();
   }
 };
 
