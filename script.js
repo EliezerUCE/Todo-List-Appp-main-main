@@ -5,19 +5,19 @@ let categories = [
     img: "boy.png",
   },
   {
-    title: "Work",
+    title: "Trabajo",
     img: "briefcase.png",
   },
   {
-    title: "Shopping",
+    title: "Compras",
     img: "shopping.png",
   },
   {
-    title: "Coding",
+    title: "Programación",
     img: "web-design.png",
   },
   {
-    title: "Health",
+    title: "Salud",
     img: "healthcare.png",
   },
   {
@@ -25,16 +25,14 @@ let categories = [
     img: "dumbbell.png",
   },
   {
-    title: "Education",
+    title: "Educación",
     img: "education.png",
   },
   {
-    title: "Finance",
+    title: "Finanzas",
     img: "saving.png",
   },
 ];
-
-// Tareas predeterminadas (solo se usarán si el usuario no tiene tareas guardadas)
 
 
 // Define functions

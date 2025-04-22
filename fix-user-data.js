@@ -118,4 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.setupStorageFunctions(currentUser.username);
     window.getLocal(); // Cargar datos inmediatamente
   }
+
+  
 });

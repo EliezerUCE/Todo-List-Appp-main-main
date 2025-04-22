@@ -234,11 +234,16 @@ function createInitialUserData(username) {
   // Categorías predeterminadas
   const defaultCategories = [
     { title: "Personal", img: "boy.png" },
-    { title: "Work", img: "briefcase.png" },
-    { title: "Shopping", img: "shopping.png" },
-    { title: "Coding", img: "web-design.png" }
-  ];
+    { title: "Trabajo", img: "briefcase.png" },
+    { title: "Compras", img: "shopping.png" },
+    { title: "Programación", img: "web-design.png" },
   
+    { title: "Salud", img: "healthcare.png" },
+    { title: "Fitness", img: "dumbbell.png" },
+    { title: "Educación", img: "education.png" },
+    { title: "Finanzas", img: "saving.png" }
+  ];
+
   // Tarea de ejemplo
   const defaultTasks = [
     { id: 1, task: "Mi primera tarea", category: "Personal", completed: false }
