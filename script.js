@@ -302,23 +302,24 @@ const initCategoryDropdown = () => {
 };
 
 // Render initial state only if not using login system
-// (login.js will handle this if present)
-if (!document.querySelector('.auth-wrapper')) {
-  getLocal();
-  renderTasks();
-  initCategoryDropdown();
-} else {
-  // Si estamos usando el sistema de login, solo inicializamos el dropdown
-  // Los datos serán cargados por login.js
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-      initCategoryDropdown();
-    }, 500);
-  });
-}
+document.addEventListener('DOMContentLoaded', () => {
+  // Si existe el sistema de autenticación, no cargamos datos desde localStorage genérico
+  if (document.querySelector('.auth-wrapper')) {
+    // No hacer nada, login.js se encargará de cargar los datos del usuario
+    console.log("Sistema de autenticación detectado, esperando login.js");
+  } else {
+    // Si no existe el sistema de autenticación, cargamos datos normalmente
+    getLocal();
+    renderCategories();
+    renderTasks();
+    initCategoryDropdown();
+    updateTotals();
+  }
+});
 
 // Make functions available globally (for login.js)
 window.renderCategories = renderCategories;
 window.updateTotals = updateTotals;
 window.renderTasks = renderTasks;
 window.initCategoryDropdown = initCategoryDropdown;
+window.saveLocal = saveLocal; // Asegurarnos que saveLocal
