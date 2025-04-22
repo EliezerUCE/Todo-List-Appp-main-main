@@ -35,21 +35,7 @@ let categories = [
 ];
 
 // Tareas predeterminadas (solo se usarán si el usuario no tiene tareas guardadas)
-let tasks = [
-  {
-    id: 1,
-    task: "Go to market",
-    category: "Shopping",
-    completed: false,
-  },
-  {
-    id: 2,
-    task: "Read a chapter of a book",
-    category: "Personal",
-    completed: false,
-  },
-  // ... el resto de tareas predeterminadas ...
-];
+
 
 // Define functions
 const saveLocal = () => {
@@ -301,14 +287,17 @@ const initCategoryDropdown = () => {
   }
 };
 
-// Render initial state only if not using login system
+// Evitar inicialización automática cuando hay sistema de login
 document.addEventListener('DOMContentLoaded', () => {
-  // Si existe el sistema de autenticación, no cargamos datos desde localStorage genérico
-  if (document.querySelector('.auth-wrapper')) {
-    // No hacer nada, login.js se encargará de cargar los datos del usuario
-    console.log("Sistema de autenticación detectado, esperando login.js");
+  console.log("script.js: DOM cargado");
+  const authSystem = document.querySelector('.auth-wrapper');
+  
+  if (authSystem) {
+    console.log("script.js: Sistema de autenticación detectado, esperando login.js");
+    // No inicializar aquí, login.js se encargará de esto
   } else {
-    // Si no existe el sistema de autenticación, cargamos datos normalmente
+    console.log("script.js: No se detectó sistema de autenticación, inicializando directamente");
+    // Solo inicializar si no hay sistema de autenticación
     getLocal();
     renderCategories();
     renderTasks();
@@ -317,9 +306,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Make functions available globally (for login.js)
+// Asegurarse de que estas funciones estén disponibles globalmente
 window.renderCategories = renderCategories;
-window.updateTotals = updateTotals;
 window.renderTasks = renderTasks;
+window.updateTotals = updateTotals;
 window.initCategoryDropdown = initCategoryDropdown;
-window.saveLocal = saveLocal; // Asegurarnos que saveLocal
+window.saveLocal = saveLocal;
+window.getLocal = getLocal;
+

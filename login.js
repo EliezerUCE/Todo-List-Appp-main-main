@@ -1,166 +1,292 @@
-// login.js - Script para manejo de autenticación en EasyTasks
+// login.js - Sistema de autenticación simplificado y robusto para EasyTasks
+
+console.log("Login.js cargado");
+
+// Función para obtener elementos del DOM de forma segura
+function getElement(selector) {
+  const element = document.querySelector(selector);
+  if (!element) {
+    console.warn(`Elemento no encontrado: ${selector}`);
+  }
+  return element;
+}
+
+// Elementos del DOM - Usando getElement para evitar errores
+const authWrapper = getElement('.auth-wrapper');
+const loginScreen = getElement('.login-screen');
+const registerScreen = getElement('.register-screen');
+const loginBtn = getElement('#login-btn');
+const registerBtn = getElement('#register-btn');
+const gotoRegisterBtn = getElement('#goto-register');
+const gotoLoginBtn = getElement('#goto-login');
+const logoutBtn = getElement('.logout-btn');
+const loginError = getElement('#login-error');
+const registerError = getElement('#register-error');
+const userNameSpan = getElement('#user-name');
+const loginUsername = getElement('#login-username');
+const loginPassword = getElement('#login-password');
+const registerName = getElement('#register-name');
+const registerUsername = getElement('#register-username');
+const registerPassword = getElement('#register-password');
+const registerConfirmPassword = getElement('#register-confirm-password');
 
 // Variables globales
-const authWrapper = document.querySelector('.auth-wrapper');
-const loginScreen = document.querySelector('.login-screen');
-const registerScreen = document.querySelector('.register-screen');
-const loginBtn = document.getElementById('login-btn');
-const registerBtn = document.getElementById('register-btn');
-const gotoRegisterBtn = document.getElementById('goto-register');
-const gotoLoginBtn = document.getElementById('goto-login');
-const logoutBtn = document.querySelector('.logout-btn');
-const loginError = document.getElementById('login-error');
-const registerError = document.getElementById('register-error');
-const userNameSpan = document.getElementById('user-name');
-
-// Variables para los campos de formulario
-const loginUsername = document.getElementById('login-username');
-const loginPassword = document.getElementById('login-password');
-const registerName = document.getElementById('register-name');
-const registerUsername = document.getElementById('register-username');
-const registerPassword = document.getElementById('register-password');
-const registerConfirmPassword = document.getElementById('register-confirm-password');
-
-// Estructura para almacenar usuarios
 let users = [];
 
-// Función para guardar usuarios en localStorage
-const saveUsers = () => {
-  localStorage.setItem('easytasks_users', JSON.stringify(users));
-};
-
-// Función para cargar usuarios desde localStorage
-const loadUsers = () => {
-  const storedUsers = localStorage.getItem('easytasks_users');
-  if (storedUsers) {
-    users = JSON.parse(storedUsers);
+// Funciones de localStorage simplificadas
+function getLocalData(key, defaultValue = null) {
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : defaultValue;
+  } catch (error) {
+    console.error(`Error al obtener datos de localStorage (${key}):`, error);
+    return defaultValue;
   }
-};
+}
 
-// Función para guardar la sesión actual
-const saveSession = (user) => {
-  localStorage.setItem('easytasks_current_user', JSON.stringify(user));
-};
-
-// Función para cargar la sesión actual
-const loadSession = () => {
-  const currentUser = localStorage.getItem('easytasks_current_user');
-  if (currentUser) {
-    return JSON.parse(currentUser);
+function setLocalData(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+    return true;
+  } catch (error) {
+    console.error(`Error al guardar datos en localStorage (${key}):`, error);
+    return false;
   }
-  return null;
-};
+}
 
-// Función para eliminar la sesión actual
-const clearSession = () => {
+// Cargar usuarios
+function loadUsers() {
+  users = getLocalData('easytasks_users', []);
+  console.log(`${users.length} usuarios cargados`);
+}
+
+// Guardar usuarios
+function saveUsers() {
+  setLocalData('easytasks_users', users);
+}
+
+// Gestión de sesión
+function saveSession(user) {
+  setLocalData('easytasks_current_user', user);
+}
+
+function loadSession() {
+  return getLocalData('easytasks_current_user', null);
+}
+
+function clearSession() {
   localStorage.removeItem('easytasks_current_user');
-};
+}
 
-// Función para mostrar pantalla de login
-const showLoginScreen = () => {
-  loginScreen.classList.add('active');
-  registerScreen.classList.remove('active');
-  loginError.textContent = '';
-  loginUsername.value = '';
-  loginPassword.value = '';
-};
+// Funciones de UI
+function showLoginScreen() {
+  if (loginScreen && registerScreen) {
+    loginScreen.classList.add('active');
+    registerScreen.classList.remove('active');
+    if (loginError) loginError.textContent = '';
+    if (loginUsername) loginUsername.value = '';
+    if (loginPassword) loginPassword.value = '';
+  }
+}
 
-// Función para mostrar pantalla de registro
-const showRegisterScreen = () => {
-  loginScreen.classList.remove('active');
-  registerScreen.classList.add('active');
-  registerError.textContent = '';
-  registerName.value = '';
-  registerUsername.value = '';
-  registerPassword.value = '';
-  registerConfirmPassword.value = '';
-};
+function showRegisterScreen() {
+  if (loginScreen && registerScreen) {
+    loginScreen.classList.remove('active');
+    registerScreen.classList.add('active');
+    if (registerError) registerError.textContent = '';
+    if (registerName) registerName.value = '';
+    if (registerUsername) registerUsername.value = '';
+    if (registerPassword) registerPassword.value = '';
+    if (registerConfirmPassword) registerConfirmPassword.value = '';
+  }
+}
 
-// Función para guardar los datos del usuario actual
-const saveUserData = () => {
+// Guardar datos del usuario actual
+function saveUserData() {
   const currentUser = loadSession();
   if (currentUser && currentUser.username) {
-    localStorage.setItem(`easytasks_tasks_${currentUser.username}`, JSON.stringify(window.tasks));
-    localStorage.setItem(`easytasks_categories_${currentUser.username}`, JSON.stringify(window.categories));
+    setLocalData(`easytasks_tasks_${currentUser.username}`, window.tasks || []);
+    setLocalData(`easytasks_categories_${currentUser.username}`, window.categories || []);
+    console.log(`Datos guardados para usuario: ${currentUser.username}`);
   }
-};
+}
 
-// Función para entrar a la aplicación
-const enterApp = (user) => {
-  // Ocultar la pantalla de autenticación
+// Cargar datos del usuario
+function loadUserData(username) {
+  // Cargar categorías
+  window.categories = getLocalData(`easytasks_categories_${username}`, window.categories || []);
+  
+  // Cargar tareas
+  window.tasks = getLocalData(`easytasks_tasks_${username}`, []);
+  
+  console.log(`Datos cargados para: ${username} (${window.tasks.length} tareas, ${window.categories.length} categorías)`);
+}
+
+// Reemplazar funciones de almacenamiento
+function setupStorageFunctions(username) {
+  // Guardar referencia original si existe
+  const originalSaveLocal = window.saveLocal;
+  
+  // Definir nueva función saveLocal específica para el usuario
+  window.saveLocal = function() {
+    setLocalData(`easytasks_tasks_${username}`, window.tasks || []);
+    setLocalData(`easytasks_categories_${username}`, window.categories || []);
+    console.log(`Datos guardados para: ${username}`);
+    
+    // También llamar a la función original si existía
+    if (typeof originalSaveLocal === 'function') {
+      originalSaveLocal();
+    }
+  };
+  
+  // Redefinir getLocal
+  window.getLocal = function() {
+    window.tasks = getLocalData(`easytasks_tasks_${username}`, []);
+    window.categories = getLocalData(`easytasks_categories_${username}`, window.categories || []);
+  };
+  
+  console.log("Funciones de almacenamiento configuradas");
+}
+
+// Iniciar la aplicación para un usuario
+function enterApp(user) {
+  if (!authWrapper) {
+    console.error("No se encontró el contenedor de autenticación");
+    return;
+  }
+  
+  // Ocultar pantalla de autenticación
   authWrapper.style.display = 'none';
   
-  // Actualizar el nombre de usuario en la UI
+  // Actualizar nombre de usuario en la UI
   if (userNameSpan) {
     userNameSpan.textContent = user.name;
   }
   
-  // Cargar las categorías y tareas del usuario actual
+  // Cargar datos y configurar funciones
   loadUserData(user.username);
+  setupStorageFunctions(user.username);
   
-  // Renderizar la interfaz de la aplicación
-  renderCategories();
-  initCategoryDropdown();
-  updateTotals();
-  
-  // Establecer la categoría seleccionada si hay categorías disponibles
-  if (window.categories.length > 0) {
-    window.selectedCategory = window.categories[0];
-    if (window.categoryTitle) window.categoryTitle.innerHTML = window.selectedCategory.title;
-    if (window.categoryImg && window.selectedCategory.img) window.categoryImg.src = `images/${window.selectedCategory.img}`;
-    renderTasks();
+  // Actualizar la UI
+  if (typeof window.renderCategories === 'function') {
+    window.renderCategories();
   }
-};
-
-// Función para salir de la aplicación
-const exitApp = () => {
-  // Asegurarnos de guardar los datos del usuario antes de salir
-  saveUserData();
   
-  // Limpiar la sesión
+  if (typeof window.initCategoryDropdown === 'function') {
+    window.initCategoryDropdown();
+  }
+  
+  if (typeof window.updateTotals === 'function') {
+    window.updateTotals();
+  }
+  
+  // Seleccionar primera categoría si hay disponibles
+  if (window.categories && window.categories.length > 0) {
+    window.selectedCategory = window.categories[0];
+    
+    const categoryTitle = getElement('#category-title');
+    const categoryImg = getElement('#category-img');
+    
+    if (categoryTitle) {
+      categoryTitle.innerHTML = window.selectedCategory.title;
+    }
+    
+    if (categoryImg && window.selectedCategory.img) {
+      categoryImg.src = `images/${window.selectedCategory.img}`;
+    }
+    
+    if (typeof window.renderTasks === 'function') {
+      window.renderTasks();
+    }
+  } else {
+    console.warn("No hay categorías disponibles");
+  }
+  
+  console.log(`Usuario ${user.name} ha iniciado sesión correctamente`);
+}
+
+// Salir de la aplicación
+function exitApp() {
+  // Guardar datos antes de salir
+  saveUserData();
   clearSession();
   
-  // Mostrar la pantalla de autenticación
-  authWrapper.style.display = '';
-  showLoginScreen();
+  // Mostrar pantalla de autenticación
+  if (authWrapper) {
+    authWrapper.style.display = '';
+    showLoginScreen();
+  }
   
-  // Limpiar categorías y tareas actuales
+  // Limpiar datos
   window.tasks = [];
   window.selectedCategory = null;
   
-  // Actualizar la UI para reflejar el logout
-  renderCategories();
-  renderTasks();
-  updateTotals();
-};
+  // Actualizar UI si las funciones están disponibles
+  if (typeof window.renderCategories === 'function') window.renderCategories();
+  if (typeof window.renderTasks === 'function') window.renderTasks();
+  if (typeof window.updateTotals === 'function') window.updateTotals();
+  
+  console.log('Usuario ha cerrado sesión');
+}
 
-// Función para validar y realizar login
-const login = () => {
+// Crear datos iniciales para un nuevo usuario
+function createInitialUserData(username) {
+  // Categorías predeterminadas
+  const defaultCategories = [
+    { title: "Personal", img: "boy.png" },
+    { title: "Work", img: "briefcase.png" },
+    { title: "Shopping", img: "shopping.png" },
+    { title: "Coding", img: "web-design.png" }
+  ];
+  
+  // Tarea de ejemplo
+  const defaultTasks = [
+    { id: 1, task: "Mi primera tarea", category: "Personal", completed: false }
+  ];
+  
+  // Guardar datos iniciales
+  setLocalData(`easytasks_categories_${username}`, defaultCategories);
+  setLocalData(`easytasks_tasks_${username}`, defaultTasks);
+  
+  console.log(`Datos iniciales creados para: ${username}`);
+}
+
+// Procesar login
+function processLogin() {
+  if (!loginUsername || !loginPassword) {
+    console.error("Elementos de login no encontrados");
+    return;
+  }
+  
   const username = loginUsername.value.trim();
   const password = loginPassword.value;
   
   // Validación básica
   if (!username || !password) {
-    loginError.textContent = 'Por favor completa todos los campos';
+    if (loginError) loginError.textContent = 'Por favor completa todos los campos';
     return;
   }
   
-  // Buscar el usuario
+  // Buscar usuario
   const user = users.find(u => u.username === username);
   
-  // Verificar si existe y la contraseña es correcta
   if (!user || user.password !== password) {
-    loginError.textContent = 'Usuario o contraseña incorrectos';
+    if (loginError) loginError.textContent = 'Usuario o contraseña incorrectos';
     return;
   }
   
-  // Guardar sesión y entrar a la app
+  // Login exitoso
   saveSession(user);
   enterApp(user);
-};
+}
 
-// Función para validar y registrar nuevo usuario
-const register = () => {
+// Procesar registro
+function processRegister() {
+  if (!registerName || !registerUsername || !registerPassword || !registerConfirmPassword) {
+    console.error("Elementos de registro no encontrados");
+    return;
+  }
+  
   const name = registerName.value.trim();
   const username = registerUsername.value.trim();
   const password = registerPassword.value;
@@ -168,18 +294,17 @@ const register = () => {
   
   // Validaciones
   if (!name || !username || !password || !confirmPassword) {
-    registerError.textContent = 'Por favor completa todos los campos';
+    if (registerError) registerError.textContent = 'Por favor completa todos los campos';
     return;
   }
   
   if (password !== confirmPassword) {
-    registerError.textContent = 'Las contraseñas no coinciden';
+    if (registerError) registerError.textContent = 'Las contraseñas no coinciden';
     return;
   }
   
-  // Verificar si el usuario ya existe
   if (users.some(u => u.username === username)) {
-    registerError.textContent = 'Este nombre de usuario ya está en uso';
+    if (registerError) registerError.textContent = 'Este nombre de usuario ya está en uso';
     return;
   }
   
@@ -191,159 +316,137 @@ const register = () => {
     dateCreated: new Date().toISOString()
   };
   
-  // Añadir a la lista y guardar
   users.push(newUser);
   saveUsers();
   
-  // Crear datos iniciales para el nuevo usuario
+  // Crear datos iniciales
   createInitialUserData(username);
   
-  // Guardar sesión y entrar a la app
+  // Iniciar sesión con el nuevo usuario
   saveSession(newUser);
   enterApp(newUser);
-};
-
-// Función para crear datos iniciales para un nuevo usuario
-const createInitialUserData = (username) => {
-  // Crear categorías predeterminadas
-  const defaultCategories = [
-    {
-      title: "Personal",
-      img: "boy.png",
-    },
-    {
-      title: "Work",
-      img: "briefcase.png",
-    },
-    {
-      title: "Shopping",
-      img: "shopping.png",
-    },
-    {
-      title: "Coding",
-      img: "web-design.png",
-    }
-  ];
-  
-  // Crear una tarea de ejemplo para el nuevo usuario
-  const defaultTasks = [
-    {
-      id: 1,
-      task: "Mi primera tarea",
-      category: "Personal",
-      completed: false
-    }
-  ];
-  
-  // Guardar datos iniciales en localStorage
-  localStorage.setItem(`easytasks_categories_${username}`, JSON.stringify(defaultCategories));
-  localStorage.setItem(`easytasks_tasks_${username}`, JSON.stringify(defaultTasks));
-};
-
-// Función para cargar datos del usuario (categorías y tareas)
-const loadUserData = (username) => {
-  // Cargar categorías del usuario
-  const userCategoriesData = localStorage.getItem(`easytasks_categories_${username}`);
-  if (userCategoriesData) {
-    window.categories = JSON.parse(userCategoriesData);
-  } else {
-    // Si no hay categorías guardadas, usar las predeterminadas del script.js
-    // No se hace nada, ya que categories ya está inicializado en script.js
-  }
-  
-  // Cargar tareas del usuario
-  const userTasksData = localStorage.getItem(`easytasks_tasks_${username}`);
-  if (userTasksData) {
-    window.tasks = JSON.parse(userTasksData);
-  } else {
-    // Si no hay tareas guardadas, usar un array vacío en lugar de las predeterminadas
-    window.tasks = [];
-  }
-};
-
-// Función para reemplazar la función saveLocal de script.js
-const replaceSaveLocal = () => {
-  // Redefinir la función saveLocal
-  window.saveLocal = function() {
-    // Guardar los datos del usuario actual
-    saveUserData();
-  };
-};
+}
 
 // Inicializar el sistema de autenticación
-const initAuth = () => {
+function initAuth() {
+  console.log("Inicializando sistema de autenticación");
+  
   // Cargar usuarios existentes
   loadUsers();
-  
-  // Reemplazar la función saveLocal
-  replaceSaveLocal();
   
   // Verificar si hay sesión activa
   const currentUser = loadSession();
   if (currentUser) {
-    // Si hay sesión, entrar directamente a la app
+    console.log(`Sesión activa encontrada: ${currentUser.username}`);
     enterApp(currentUser);
   } else {
-    // Si no hay sesión, mostrar pantalla de login y limpiar las tareas predeterminadas
-    window.tasks = [];
-    authWrapper.style.display = '';
+    // Mostrar pantalla de login
+    if (authWrapper) {
+      window.tasks = [];
+      authWrapper.style.display = '';
+      console.log('Mostrando pantalla de login');
+    } else {
+      console.error("No se pudo mostrar la pantalla de login");
+    }
   }
   
-  // Event listeners
-  gotoRegisterBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    showRegisterScreen();
-  });
+  // Configurar event listeners
+  if (gotoRegisterBtn) {
+    gotoRegisterBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      showRegisterScreen();
+    });
+  }
   
-  gotoLoginBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    showLoginScreen();
-  });
+  if (gotoLoginBtn) {
+    gotoLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      showLoginScreen();
+    });
+  }
   
-  loginBtn.addEventListener('click', login);
-  registerBtn.addEventListener('click', register);
+  if (loginBtn) {
+    loginBtn.addEventListener('click', processLogin);
+  }
+  
+  if (registerBtn) {
+    registerBtn.addEventListener('click', processRegister);
+  }
   
   if (logoutBtn) {
     logoutBtn.addEventListener('click', exitApp);
   }
   
   // Event listeners para envío con Enter
-  loginPassword.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      login();
-    }
-  });
+  if (loginPassword) {
+    loginPassword.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        processLogin();
+      }
+    });
+  }
   
-  registerConfirmPassword.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      register();
-    }
-  });
+  if (registerConfirmPassword) {
+    registerConfirmPassword.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        processRegister();
+      }
+    });
+  }
   
-  // Añadir event listener para guardar datos antes de cerrar la página
-  window.addEventListener('beforeunload', () => {
-    saveUserData();
-  });
-};
+  // Guardar datos antes de cerrar
+  window.addEventListener('beforeunload', saveUserData);
+}
 
-// Iniciar el sistema de autenticación cuando el DOM esté completamente cargado
-document.addEventListener('DOMContentLoaded', () => {
-  // Verificar si script.js ya se ha cargado completamente
-  const checkScriptLoaded = setInterval(() => {
-    if (typeof window.renderCategories === 'function' && 
-        typeof window.updateTotals === 'function' &&
-        typeof window.initCategoryDropdown === 'function') {
-      clearInterval(checkScriptLoaded);
-      // Inicializar autenticación después de que script.js está listo
-      initAuth();
-    }
-  }, 100);
+// Esperamos a que el DOM esté completamente cargado y script.js disponible
+function waitForScriptJs() {
+  console.log("Esperando que script.js esté disponible...");
   
-  // Por seguridad, iniciar de todos modos después de un tiempo máximo
-  setTimeout(() => {
-    clearInterval(checkScriptLoaded);
-    if (typeof window.renderCategories === 'function') {
-      initAuth();
-    }
-  }, 2000);
+  // Verificar si las funciones necesarias están disponibles
+  if (typeof window.renderCategories === 'function' && 
+      typeof window.updateTotals === 'function' && 
+      typeof window.renderTasks === 'function') {
+    console.log("Script.js está listo, inicializando autenticación");
+    initAuth();
+    return true;
+  }
+  
+  return false;
+}
+
+// Iniciar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("DOM cargado, iniciando sistema de login");
+  
+  // Intentar inicializar inmediatamente
+  if (!waitForScriptJs()) {
+    // Si no se pudo, intentar cada 100ms
+    let attempts = 0;
+    const maxAttempts = 50; // 5 segundos máximo
+    
+    const checkInterval = setInterval(() => {
+      attempts++;
+      
+      if (waitForScriptJs() || attempts >= maxAttempts) {
+        clearInterval(checkInterval);
+        
+        if (attempts >= maxAttempts) {
+          console.error("No se pudo inicializar el sistema de login: script.js no disponible después de varios intentos");
+          // Intentar inicializar de todos modos como último recurso
+          initAuth();
+        }
+      }
+    }, 100);
+  }
+});
+
+// También podemos intentar inicializar cuando la ventana esté completamente cargada
+window.addEventListener('load', () => {
+  console.log("Ventana cargada completamente");
+  
+  // Si todavía no se ha inicializado, intentar de nuevo
+  if (authWrapper && authWrapper.style.display !== 'none' && users.length === 0) {
+    console.log("Intentando inicializar autenticación después de carga completa");
+    waitForScriptJs();
+  }
 });
