@@ -76,6 +76,15 @@ const showRegisterScreen = () => {
   registerConfirmPassword.value = '';
 };
 
+// Función para guardar las tareas y categorías del usuario actual
+const saveUserData = () => {
+  const currentUser = loadSession();
+  if (currentUser) {
+    localStorage.setItem(`easytasks_tasks_${currentUser.username}`, JSON.stringify(tasks));
+    localStorage.setItem(`easytasks_categories_${currentUser.username}`, JSON.stringify(categories));
+  }
+};
+
 // Función para entrar a la aplicación
 const enterApp = (user) => {
   // Actualizar el nombre de usuario en la UI
@@ -96,6 +105,9 @@ const enterApp = (user) => {
 
 // Función para salir de la aplicación
 const exitApp = () => {
+  // Asegurarnos de guardar los datos del usuario antes de salir
+  saveUserData();
+  
   // Limpiar la sesión
   clearSession();
   
@@ -230,26 +242,31 @@ const loadUserData = (username) => {
   if (userTasksData) {
     window.tasks = JSON.parse(userTasksData);
   } else {
-    // Si no hay tareas guardadas, usar las predeterminadas del script.js
-    // o comenzar con un array vacío
+    // Si no hay tareas guardadas, usar un array vacío
     window.tasks = [];
   }
 };
 
-// Sobreescribir la función saveLocal de script.js
-window.originalSaveLocal = window.saveLocal; // Guardar referencia a la función original
-window.saveLocal = () => {
-  const currentUser = loadSession();
-  if (currentUser) {
-    localStorage.setItem(`easytasks_tasks_${currentUser.username}`, JSON.stringify(window.tasks));
-    localStorage.setItem(`easytasks_categories_${currentUser.username}`, JSON.stringify(window.categories));
-  }
+// Función para reemplazar la función saveLocal de script.js
+const replaceSaveLocal = () => {
+  // Guardar referencia a la función original
+  if (window.originalSaveLocal) return; // Evitar reemplazar múltiples veces
+  
+  window.originalSaveLocal = window.saveLocal;
+  
+  // Redefinir la función saveLocal
+  window.saveLocal = function() {
+    saveUserData();
+  };
 };
 
 // Inicializar el sistema de autenticación
 const initAuth = () => {
   // Cargar usuarios existentes
   loadUsers();
+  
+  // Reemplazar la función saveLocal
+  replaceSaveLocal();
   
   // Verificar si hay sesión activa
   const currentUser = loadSession();
@@ -292,6 +309,11 @@ const initAuth = () => {
     if (e.key === 'Enter') {
       register();
     }
+  });
+  
+  // Añadir event listener para guardar datos antes de cerrar la página
+  window.addEventListener('beforeunload', () => {
+    saveUserData();
   });
 };
 
