@@ -76,39 +76,38 @@ const showRegisterScreen = () => {
   registerConfirmPassword.value = '';
 };
 
-// Función modificada para guardar las tareas y categorías del usuario actual
+// Función para guardar los datos del usuario actual
 const saveUserData = () => {
   const currentUser = loadSession();
-  if (currentUser) {
-    // CORRECCIÓN: Guardar con el nombre de usuario actual
-    localStorage.setItem(`easytasks_tasks_${currentUser.username}`, JSON.stringify(tasks));
-    localStorage.setItem(`easytasks_categories_${currentUser.username}`, JSON.stringify(categories));
+  if (currentUser && currentUser.username) {
+    localStorage.setItem(`easytasks_tasks_${currentUser.username}`, JSON.stringify(window.tasks));
+    localStorage.setItem(`easytasks_categories_${currentUser.username}`, JSON.stringify(window.categories));
   }
 };
 
 // Función para entrar a la aplicación
 const enterApp = (user) => {
+  // Ocultar la pantalla de autenticación
+  authWrapper.style.display = 'none';
+  
   // Actualizar el nombre de usuario en la UI
   if (userNameSpan) {
     userNameSpan.textContent = user.name;
   }
-  
-  // Ocultar la pantalla de autenticación
-  authWrapper.classList.add('hidden');
   
   // Cargar las categorías y tareas del usuario actual
   loadUserData(user.username);
   
   // Renderizar la interfaz de la aplicación
   renderCategories();
-  initCategoryDropdown(); // CORRECCIÓN: Inicializar dropdown con categorías del usuario
+  initCategoryDropdown();
   updateTotals();
   
   // Establecer la categoría seleccionada si hay categorías disponibles
-  if (categories.length > 0) {
-    selectedCategory = categories[0];
-    if (categoryTitle) categoryTitle.innerHTML = selectedCategory.title;
-    if (categoryImg && selectedCategory.img) categoryImg.src = `images/${selectedCategory.img}`;
+  if (window.categories.length > 0) {
+    window.selectedCategory = window.categories[0];
+    if (window.categoryTitle) window.categoryTitle.innerHTML = window.selectedCategory.title;
+    if (window.categoryImg && window.selectedCategory.img) window.categoryImg.src = `images/${window.selectedCategory.img}`;
     renderTasks();
   }
 };
@@ -122,12 +121,17 @@ const exitApp = () => {
   clearSession();
   
   // Mostrar la pantalla de autenticación
-  authWrapper.classList.remove('hidden');
+  authWrapper.style.display = '';
   showLoginScreen();
   
   // Limpiar categorías y tareas actuales
-  window.categories = [];
   window.tasks = [];
+  window.selectedCategory = null;
+  
+  // Actualizar la UI para reflejar el logout
+  renderCategories();
+  renderTasks();
+  updateTotals();
 };
 
 // Función para validar y realizar login
@@ -226,7 +230,7 @@ const createInitialUserData = (username) => {
     {
       id: 1,
       task: "Mi primera tarea",
-      category: "Personal", // CORRECCIÓN: Usar el caso exacto
+      category: "Personal",
       completed: false
     }
   ];
@@ -244,7 +248,7 @@ const loadUserData = (username) => {
     window.categories = JSON.parse(userCategoriesData);
   } else {
     // Si no hay categorías guardadas, usar las predeterminadas del script.js
-    // Las categorías por defecto ya están definidas en script.js
+    // No se hace nada, ya que categories ya está inicializado en script.js
   }
   
   // Cargar tareas del usuario
@@ -252,29 +256,17 @@ const loadUserData = (username) => {
   if (userTasksData) {
     window.tasks = JSON.parse(userTasksData);
   } else {
-    // Si no hay tareas guardadas, usar un array vacío
+    // Si no hay tareas guardadas, usar un array vacío en lugar de las predeterminadas
     window.tasks = [];
   }
 };
 
 // Función para reemplazar la función saveLocal de script.js
 const replaceSaveLocal = () => {
-  // Guardar referencia a la función original
-  if (window.originalSaveLocal) return; // Evitar reemplazar múltiples veces
-  
-  window.originalSaveLocal = window.saveLocal;
-  
   // Redefinir la función saveLocal
   window.saveLocal = function() {
-    // CORRECCIÓN: En lugar de llamar a saveUserData, hacer el guardado directamente aquí
-    const currentUser = loadSession();
-    if (currentUser) {
-      localStorage.setItem(`easytasks_tasks_${currentUser.username}`, JSON.stringify(tasks));
-      localStorage.setItem(`easytasks_categories_${currentUser.username}`, JSON.stringify(categories));
-    } else {
-      // Si no hay usuario, usar el comportamiento original
-      window.originalSaveLocal();
-    }
+    // Guardar los datos del usuario actual
+    saveUserData();
   };
 };
 
@@ -290,12 +282,11 @@ const initAuth = () => {
   const currentUser = loadSession();
   if (currentUser) {
     // Si hay sesión, entrar directamente a la app
-    setTimeout(() => {
-      enterApp(currentUser);
-    }, 500); // Pequeño retraso para asegurarse de que el DOM y script.js estén cargados
+    enterApp(currentUser);
   } else {
-    // Si no hay sesión, mostrar pantalla de login
-    authWrapper.classList.remove('hidden');
+    // Si no hay sesión, mostrar pantalla de login y limpiar las tareas predeterminadas
+    window.tasks = [];
+    authWrapper.style.display = '';
   }
   
   // Event listeners
@@ -335,11 +326,13 @@ const initAuth = () => {
   });
 };
 
-// Esperar a que el DOM se cargue completamente y también script.js
+// Iniciar el sistema de autenticación cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
-  // Verificar si script.js ya se ha cargado
+  // Verificar si script.js ya se ha cargado completamente
   const checkScriptLoaded = setInterval(() => {
-    if (typeof renderCategories === 'function' && typeof updateTotals === 'function') {
+    if (typeof window.renderCategories === 'function' && 
+        typeof window.updateTotals === 'function' &&
+        typeof window.initCategoryDropdown === 'function') {
       clearInterval(checkScriptLoaded);
       // Inicializar autenticación después de que script.js está listo
       initAuth();
@@ -349,6 +342,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Por seguridad, iniciar de todos modos después de un tiempo máximo
   setTimeout(() => {
     clearInterval(checkScriptLoaded);
-    initAuth();
+    if (typeof window.renderCategories === 'function') {
+      initAuth();
+    }
   }, 2000);
 });
