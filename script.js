@@ -70,9 +70,9 @@ const toggleScreen = () => {
 const updateTotals = () => {
   if (!selectedCategory) return;
   
+  // CORRECCIÓN: Usar comparación exacta para la categoría, sin convertir a minúsculas
   const categoryTasks = tasks.filter(
-    (task) =>
-      task.category.toLowerCase() === selectedCategory.title.toLowerCase()
+    (task) => task.category === selectedCategory.title
   );
   
   if (numTasks) {
@@ -89,8 +89,9 @@ const renderCategories = () => {
   
   categoriesContainer.innerHTML = "";
   categories.forEach((category) => {
+    // CORRECCIÓN: Usar comparación exacta para la categoría, sin convertir a minúsculas
     const categoryTasks = tasks.filter(
-      (task) => task.category.toLowerCase() === category.title.toLowerCase()
+      (task) => task.category === category.title
     );
     const div = document.createElement("div");
     div.classList.add("category");
@@ -141,9 +142,9 @@ const renderTasks = () => {
   if (!tasksContainer || !selectedCategory) return;
   
   tasksContainer.innerHTML = "";
+  // CORRECCIÓN: Usar comparación exacta para la categoría, sin convertir a minúsculas
   const categoryTasks = tasks.filter(
-    (task) =>
-      task.category.toLowerCase() === selectedCategory.title.toLowerCase()
+    (task) => task.category === selectedCategory.title
   );
   if (categoryTasks.length === 0) {
     tasksContainer.innerHTML = `<p class="no-tasks">No tasks added for this category</p>`;
@@ -238,10 +239,14 @@ const addTask = (e) => {
     // Generar un ID único para la tarea
     const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
     
+    // CORRECCIÓN: Buscar la categoría real con el título exacto
+    const foundCategory = categories.find(cat => cat.title.toLowerCase() === category.toLowerCase());
+    const categoryTitle = foundCategory ? foundCategory.title : category;
+    
     const newTask = {
       id: newId,
       task,
-      category,
+      category: categoryTitle, // CORRECCIÓN: Usar el título exacto de la categoría
       completed: false,
     };
     taskInput.value = "";
@@ -249,6 +254,8 @@ const addTask = (e) => {
     saveLocal();
     toggleAddTaskForm();
     renderTasks();
+    renderCategories(); // AÑADIDO: Actualizar también las categorías
+    updateTotals(); // AÑADIDO: Actualizar los totales
   }
 };
 
@@ -287,7 +294,7 @@ const initCategoryDropdown = () => {
     categorySelect.innerHTML = '';
     categories.forEach((category) => {
       const option = document.createElement("option");
-      option.value = category.title.toLowerCase();
+      option.value = category.title; // CORRECCIÓN: Usar el título original, no en minúsculas
       option.textContent = category.title;
       categorySelect.appendChild(option);
     });
