@@ -1,5 +1,4 @@
-//HOLA 
-
+// Definición de categorías por defecto (solo se usarán si el usuario no tiene categorías guardadas)
 let categories = [
   {
     title: "Personal",
@@ -35,6 +34,7 @@ let categories = [
   },
 ];
 
+// Tareas predeterminadas (solo se usarán si el usuario no tiene tareas guardadas)
 let tasks = [
   {
     id: 1,
@@ -48,146 +48,7 @@ let tasks = [
     category: "Personal",
     completed: false,
   },
-  {
-    id: 3,
-    task: "Prepare presentation for meeting",
-    category: "Work",
-    completed: false,
-  },
-  {
-    id: 4,
-    task: "Complete coding challenge",
-    category: "Coding",
-    completed: false,
-  },
-  {
-    id: 5,
-    task: "Take a 30-minute walk",
-    category: "Health",
-    completed: false,
-  },
-  {
-    id: 6,
-    task: "Do a 20-minute HIIT workout",
-    category: "Fitness",
-    completed: false,
-  },
-  {
-    id: 7,
-    task: "Watch an educational video online",
-    category: "Education",
-    completed: false,
-  },
-  {
-    id: 8,
-    task: "Review monthly budget",
-    category: "Finance",
-    completed: false,
-  },
-  {
-    id: 9,
-    task: "Buy groceries for the week",
-    category: "Shopping",
-    completed: false,
-  },
-  {
-    id: 10,
-    task: "Write in a journal",
-    category: "Personal",
-    completed: false,
-  },
-  {
-    id: 11,
-    task: "Send follow-up emails",
-    category: "Work",
-    completed: false,
-  },
-  {
-    id: 12,
-    task: "Work on a coding side project",
-    category: "Coding",
-    completed: false,
-  },
-  {
-    id: 13,
-    task: "Try a new healthy recipe",
-    category: "Health",
-    completed: false,
-  },
-  {
-    id: 14,
-    task: "Attend a yoga class",
-    category: "Fitness",
-    completed: false,
-  },
-  {
-    id: 15,
-    task: "Read an article about a new topic",
-    category: "Education",
-    completed: false,
-  },
-  {
-    id: 16,
-    task: "Set up automatic bill payments",
-    category: "Finance",
-    completed: false,
-  },
-  // Additional tasks for each category
-  {
-    id: 17,
-    task: "Buy new clothes",
-    category: "Shopping",
-    completed: false,
-  },
-  {
-    id: 18,
-    task: "Meditate for 10 minutes",
-    category: "Personal",
-    completed: false,
-  },
-  {
-    id: 19,
-    task: "Prepare agenda for team meeting",
-    category: "Work",
-    completed: false,
-  },
-  {
-    id: 20,
-    task: "Debug a software issue",
-    category: "Coding",
-    completed: false,
-  },
-  {
-    id: 21,
-    task: "Try a new recipe for lunch",
-    category: "Health",
-    completed: false,
-  },
-  {
-    id: 22,
-    task: "Go for a run",
-    category: "Fitness",
-    completed: false,
-  },
-  {
-    id: 23,
-    task: "Learn a new language online",
-    category: "Education",
-    completed: false,
-  },
-  {
-    id: 24,
-    task: "Read about history",
-    category: "Education",
-    completed: false,
-  },
-  {
-    id: 25,
-    task: "Review investment portfolio",
-    category: "Finance",
-    completed: false,
-  },
-  // Add more tasks for each category as desired
+  // ... el resto de tareas predeterminadas ...
 ];
 
 // Define functions
@@ -207,15 +68,25 @@ const toggleScreen = () => {
 };
 
 const updateTotals = () => {
+  if (!selectedCategory) return;
+  
   const categoryTasks = tasks.filter(
     (task) =>
       task.category.toLowerCase() === selectedCategory.title.toLowerCase()
   );
-  numTasks.innerHTML = `${categoryTasks.length} Tasks`;
-  totalTasks.innerHTML = tasks.length;
+  
+  if (numTasks) {
+    numTasks.innerHTML = `${categoryTasks.length} Tasks`;
+  }
+  
+  if (totalTasks) {
+    totalTasks.innerHTML = tasks.length;
+  }
 };
 
 const renderCategories = () => {
+  if (!categoriesContainer) return;
+  
   categoriesContainer.innerHTML = "";
   categories.forEach((category) => {
     const categoryTasks = tasks.filter(
@@ -267,6 +138,8 @@ const renderCategories = () => {
 };
 
 const renderTasks = () => {
+  if (!tasksContainer || !selectedCategory) return;
+  
   tasksContainer.innerHTML = "";
   const categoryTasks = tasks.filter(
     (task) =>
@@ -359,8 +232,11 @@ const addTask = (e) => {
   if (task === "") {
     alert("Please enter a task");
   } else {
+    // Generar un ID único para la tarea
+    const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+    
     const newTask = {
-      id: tasks.length + 1,
+      id: newId,
       task,
       category,
       completed: false,
@@ -374,7 +250,9 @@ const addTask = (e) => {
 };
 
 // Initialize variables and DOM elements
-let selectedCategory = categories[0];
+let selectedCategory = categories.length > 0 ? categories[0] : null;
+
+// Use querySelector with error handling to avoid errors if elements don't exist yet
 const categoriesContainer = document.querySelector(".categories");
 const screenWrapper = document.querySelector(".wrapper");
 const menuBtn = document.querySelector(".menu-btn");
@@ -392,20 +270,45 @@ const addBtn = document.querySelector(".add-btn");
 const cancelBtn = document.querySelector(".cancel-btn");
 const totalTasks = document.getElementById("total-tasks");
 
-// Attach event listeners
-menuBtn.addEventListener("click", toggleScreen);
-backBtn.addEventListener("click", toggleScreen);
-addTaskBtn.addEventListener("click", toggleAddTaskForm);
-blackBackdrop.addEventListener("click", toggleAddTaskForm);
-addBtn.addEventListener("click", addTask);
-cancelBtn.addEventListener("click", toggleAddTaskForm);
+// Attach event listeners (with safety checks)
+if (menuBtn) menuBtn.addEventListener("click", toggleScreen);
+if (backBtn) backBtn.addEventListener("click", toggleScreen);
+if (addTaskBtn) addTaskBtn.addEventListener("click", toggleAddTaskForm);
+if (blackBackdrop) blackBackdrop.addEventListener("click", toggleAddTaskForm);
+if (addBtn) addBtn.addEventListener("click", addTask);
+if (cancelBtn) cancelBtn.addEventListener("click", toggleAddTaskForm);
 
-// Render initial state
-getLocal();
-renderTasks();
-categories.forEach((category) => {
-  const option = document.createElement("option");
-  option.value = category.title.toLowerCase();
-  option.textContent = category.title;
-  categorySelect.appendChild(option);
-});
+// Initialize the category dropdown
+const initCategoryDropdown = () => {
+  if (categorySelect) {
+    categorySelect.innerHTML = '';
+    categories.forEach((category) => {
+      const option = document.createElement("option");
+      option.value = category.title.toLowerCase();
+      option.textContent = category.title;
+      categorySelect.appendChild(option);
+    });
+  }
+};
+
+// Render initial state only if not using login system
+// (login.js will handle this if present)
+if (!document.querySelector('.auth-wrapper')) {
+  getLocal();
+  renderTasks();
+  initCategoryDropdown();
+} else {
+  // Si estamos usando el sistema de login, solo inicializamos el dropdown
+  // Los datos serán cargados por login.js
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      initCategoryDropdown();
+    }, 500);
+  });
+}
+
+// Make functions available globally (for login.js)
+window.renderCategories = renderCategories;
+window.updateTotals = updateTotals;
+window.renderTasks = renderTasks;
+window.initCategoryDropdown = initCategoryDropdown;

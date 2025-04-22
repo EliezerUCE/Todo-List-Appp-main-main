@@ -22,37 +22,106 @@
     />
   </head>
   <body>
+
+
+
+
+      <!--Nuevo codigo 1 empieza-->
+      <div class="auth-wrapper">
+        <!-- Pantalla de Login -->
+        <div class="login-screen screen active">
+          <div class="auth-logo">
+            <img src="images/logo2.png" alt="EasyTasks Logo">
+            <h1>EasyTasks</h1>
+          </div>
+          <div class="auth-form">
+            <h2>Iniciar Sesión</h2>
+            <div class="input-group">
+              <label for="login-username">Usuario</label>
+              <input type="text" id="login-username" placeholder="Nombre de usuario" required>
+            </div>
+            <div class="input-group">
+              <label for="login-password">Contraseña</label>
+              <input type="password" id="login-password" placeholder="Contraseña" required>
+            </div>
+            <div class="auth-buttons">
+              <button id="login-btn" class="primary-btn">Iniciar Sesión</button>
+            </div>
+            <p class="auth-switch">¿No tienes cuenta? <a href="#" id="goto-register">Regístrate</a></p>
+            <p id="login-error" class="error-message"></p>
+          </div>
+        </div>
+  
+        <!-- Pantalla de Registro -->
+        <div class="register-screen screen">
+          <div class="auth-logo">
+            <img src="images/logo2.png" alt="EasyTasks Logo">
+            <h1>EasyTasks</h1>
+          </div>
+          <div class="auth-form">
+            <h2>Crear Cuenta</h2>
+            <div class="input-group">
+              <label for="register-name">Nombre Completo</label>
+              <input type="text" id="register-name" placeholder="Tu nombre completo" required>
+            </div>
+            <div class="input-group">
+              <label for="register-username">Usuario</label>
+              <input type="text" id="register-username" placeholder="Nombre de usuario" required>
+            </div>
+            <div class="input-group">
+              <label for="register-password">Contraseña</label>
+              <input type="password" id="register-password" placeholder="Contraseña" required>
+            </div>
+            <div class="input-group">
+              <label for="register-confirm-password">Confirmar Contraseña</label>
+              <input type="password" id="register-confirm-password" placeholder="Confirmar contraseña" required>
+            </div>
+            <div class="auth-buttons">
+              <button id="register-btn" class="primary-btn">Registrarse</button>
+            </div>
+            <p class="auth-switch">¿Ya tienes cuenta? <a href="#" id="goto-login">Iniciar Sesión</a></p>
+            <p id="register-error" class="error-message"></p>
+          </div>
+        </div>
+      </div>
+      <!--Nuevo codigo 1 Termina-->
+
+
+
     <div class="wrapper">
       <div class="screen-backdrop"></div>
       <div class="home-screen screen">
         <div class="head-wrapper">
-          <div class="menu-btn">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-6 h-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
-              />
-            </svg>
+          <div class="menu-btn-group">
+            <div class="menu-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+              </svg>
+            </div>
+            <div class="logout-btn" title="Cerrar sesión">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 10.5h.008v.008H18V10.5z" />
+              </svg>
+            </div>
           </div>
+                  
           <div class="welcome">
             <div class="content">
-              <h1>Hello John</h1>
-              <p>Today you have <span id="total-tasks">5</span> tasks</p>
+              <h1>EasyTasks</h1>
+              <p>Hola <span id="user-name">Usuario</span></p>
+              <p>Tienes <span id="total-tasks">0</span> tareas pendientes</p>
             </div>
             <div class="img">
               <div class="backdrop"></div>
-              <img src="images/boy.png" alt="" />
+              <img src="images/logo2.png" alt="Logo" />
             </div>
           </div>
         </div>
+
+
+
+
         <div class="categories-wrapper">
           <div class="categories">
             <div class="category">
@@ -206,5 +275,8 @@
     </div>
 
     <script src="script.js"></script>
+
+    <!--Enlazar el login script-->
+    <script src="login.js"></script>
   </body>
 </html>

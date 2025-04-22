@@ -454,3 +454,125 @@ button.add-btn {
     opacity: 1;
     visibility: visible;
 }
+
+
+
+
+
+/*Nuevo codigo de aqui hasta el final*/
+/* Estilos para pantallas de autenticación */
+.auth-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease;
+  }
+  
+  .auth-wrapper.hidden {
+    transform: translateY(-100%);
+  }
+  
+  .auth-wrapper .screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+  }
+  
+  .auth-wrapper .screen.active {
+    display: flex;
+  }
+  
+  .auth-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .auth-logo img {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .auth-logo h1 {
+    color: #39a6f0;
+    font-size: 2rem;
+    margin-top: 1rem;
+  }
+  
+  .auth-form {
+    width: 100%;
+  }
+  
+  .auth-form h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #2e2e2e;
+  }
+  
+  .auth-buttons {
+    margin-top: 1.5rem;
+  }
+  
+  .primary-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #39a6f0;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .primary-btn:hover {
+    background-color: #2a8bd4;
+  }
+  
+  .auth-switch {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  .auth-switch a {
+    color: #39a6f0;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  
+  .error-message {
+    color: #ff3b30;
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    min-height: 20px;
+  }
+
+  .menu-btn-group {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .logout-btn {
+    width: 2rem;
+    cursor: pointer;
+    color: #ffffff;
+  }
+  
+  .logout-btn:hover {
+    opacity: 0.8;
+  }
