@@ -76,10 +76,11 @@ const showRegisterScreen = () => {
   registerConfirmPassword.value = '';
 };
 
-// Función para guardar las tareas y categorías del usuario actual
+// Función modificada para guardar las tareas y categorías del usuario actual
 const saveUserData = () => {
   const currentUser = loadSession();
   if (currentUser) {
+    // CORRECCIÓN: Guardar con el nombre de usuario actual
     localStorage.setItem(`easytasks_tasks_${currentUser.username}`, JSON.stringify(tasks));
     localStorage.setItem(`easytasks_categories_${currentUser.username}`, JSON.stringify(categories));
   }
@@ -100,7 +101,16 @@ const enterApp = (user) => {
   
   // Renderizar la interfaz de la aplicación
   renderCategories();
+  initCategoryDropdown(); // CORRECCIÓN: Inicializar dropdown con categorías del usuario
   updateTotals();
+  
+  // Establecer la categoría seleccionada si hay categorías disponibles
+  if (categories.length > 0) {
+    selectedCategory = categories[0];
+    if (categoryTitle) categoryTitle.innerHTML = selectedCategory.title;
+    if (categoryImg && selectedCategory.img) categoryImg.src = `images/${selectedCategory.img}`;
+    renderTasks();
+  }
 };
 
 // Función para salir de la aplicación
@@ -116,8 +126,8 @@ const exitApp = () => {
   showLoginScreen();
   
   // Limpiar categorías y tareas actuales
-  categories = [];
-  tasks = [];
+  window.categories = [];
+  window.tasks = [];
 };
 
 // Función para validar y realizar login
@@ -216,7 +226,7 @@ const createInitialUserData = (username) => {
     {
       id: 1,
       task: "Mi primera tarea",
-      category: "Personal",
+      category: "Personal", // CORRECCIÓN: Usar el caso exacto
       completed: false
     }
   ];
@@ -256,7 +266,15 @@ const replaceSaveLocal = () => {
   
   // Redefinir la función saveLocal
   window.saveLocal = function() {
-    saveUserData();
+    // CORRECCIÓN: En lugar de llamar a saveUserData, hacer el guardado directamente aquí
+    const currentUser = loadSession();
+    if (currentUser) {
+      localStorage.setItem(`easytasks_tasks_${currentUser.username}`, JSON.stringify(tasks));
+      localStorage.setItem(`easytasks_categories_${currentUser.username}`, JSON.stringify(categories));
+    } else {
+      // Si no hay usuario, usar el comportamiento original
+      window.originalSaveLocal();
+    }
   };
 };
 
