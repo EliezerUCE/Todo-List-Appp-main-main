@@ -1,4 +1,4 @@
-// Definición de categorías por defecto (solo se usarán si el usuario no tiene categorías guardadas)
+// Definición de categorías por defecto
 let categories = [
   {
     title: "Personal",
@@ -35,7 +35,7 @@ let categories = [
 ];
 
 
-// Define functions
+// functions
 const saveLocal = () => {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
@@ -54,7 +54,6 @@ const toggleScreen = () => {
 const updateTotals = () => {
   if (!selectedCategory) return;
   
-  // CORRECCIÓN: Usar comparación exacta para la categoría, sin convertir a minúsculas
   const categoryTasks = tasks.filter(
     (task) => task.category === selectedCategory.title
   );
@@ -73,7 +72,6 @@ const renderCategories = () => {
   
   categoriesContainer.innerHTML = "";
   categories.forEach((category) => {
-    // CORRECCIÓN: Usar comparación exacta para la categoría, sin convertir a minúsculas
     const categoryTasks = tasks.filter(
       (task) => task.category === category.title
     );
@@ -126,7 +124,6 @@ const renderTasks = () => {
   if (!tasksContainer || !selectedCategory) return;
   
   tasksContainer.innerHTML = "";
-  // CORRECCIÓN: Usar comparación exacta para la categoría, sin convertir a minúsculas
   const categoryTasks = tasks.filter(
     (task) => task.category === selectedCategory.title
   );
@@ -143,13 +140,12 @@ const renderTasks = () => {
       checkbox.type = "checkbox";
       checkbox.id = task.id;
       checkbox.checked = task.completed;
-      
-      // Modificar el evento change para asegurarnos que se llama a la función saveLocal actualizada
+
       checkbox.addEventListener("change", () => {
         const index = tasks.findIndex((t) => t.id === task.id);
         tasks[index].completed = !tasks[index].completed;
-        saveLocal();  // Ahora llama a la función sobrescrita
-        updateTotals(); // Actualizar totales tras el cambio
+        saveLocal(); 
+        updateTotals();
       });
       
       div.innerHTML = `
@@ -197,9 +193,9 @@ const renderTasks = () => {
       deleteBtn.addEventListener("click", () => {
         const index = tasks.findIndex((t) => t.id === task.id);
         tasks.splice(index, 1);
-        saveLocal();  // Llamada a la función sobrescrita
+        saveLocal();  
         renderTasks();
-        renderCategories(); // Actualizar también las categorías
+        renderCategories(); 
         updateTotals();
       });
     });
@@ -223,14 +219,13 @@ const addTask = (e) => {
     // Generar un ID único para la tarea
     const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
     
-    // CORRECCIÓN: Buscar la categoría real con el título exacto
     const foundCategory = categories.find(cat => cat.title.toLowerCase() === category.toLowerCase());
     const categoryTitle = foundCategory ? foundCategory.title : category;
     
     const newTask = {
       id: newId,
       task,
-      category: categoryTitle, // CORRECCIÓN: Usar el título exacto de la categoría
+      category: categoryTitle, 
       completed: false,
     };
     taskInput.value = "";
@@ -238,15 +233,15 @@ const addTask = (e) => {
     saveLocal();
     toggleAddTaskForm();
     renderTasks();
-    renderCategories(); // AÑADIDO: Actualizar también las categorías
-    updateTotals(); // AÑADIDO: Actualizar los totales
+    renderCategories(); 
+    updateTotals(); 
   }
 };
 
-// Initialize variables and DOM elements
+
 let selectedCategory = categories.length > 0 ? categories[0] : null;
 
-// Use querySelector with error handling to avoid errors if elements don't exist yet
+
 const categoriesContainer = document.querySelector(".categories");
 const screenWrapper = document.querySelector(".wrapper");
 const menuBtn = document.querySelector(".menu-btn");
@@ -264,7 +259,6 @@ const addBtn = document.querySelector(".add-btn");
 const cancelBtn = document.querySelector(".cancel-btn");
 const totalTasks = document.getElementById("total-tasks");
 
-// Attach event listeners (with safety checks)
 if (menuBtn) menuBtn.addEventListener("click", toggleScreen);
 if (backBtn) backBtn.addEventListener("click", toggleScreen);
 if (addTaskBtn) addTaskBtn.addEventListener("click", toggleAddTaskForm);
@@ -272,30 +266,29 @@ if (blackBackdrop) blackBackdrop.addEventListener("click", toggleAddTaskForm);
 if (addBtn) addBtn.addEventListener("click", addTask);
 if (cancelBtn) cancelBtn.addEventListener("click", toggleAddTaskForm);
 
-// Initialize the category dropdown
+
 const initCategoryDropdown = () => {
   if (categorySelect) {
     categorySelect.innerHTML = '';
     categories.forEach((category) => {
       const option = document.createElement("option");
-      option.value = category.title; // CORRECCIÓN: Usar el título original, no en minúsculas
+      option.value = category.title; 
       option.textContent = category.title;
       categorySelect.appendChild(option);
     });
   }
 };
 
-// Evitar inicialización automática cuando hay sistema de login
 document.addEventListener('DOMContentLoaded', () => {
   console.log("script.js: DOM cargado");
   const authSystem = document.querySelector('.auth-wrapper');
   
   if (authSystem) {
     console.log("script.js: Sistema de autenticación detectado, esperando login.js");
-    // No inicializar aquí, login.js se encargará de esto
+
   } else {
     console.log("script.js: No se detectó sistema de autenticación, inicializando directamente");
-    // Solo inicializar si no hay sistema de autenticación
+ 
     getLocal();
     renderCategories();
     renderTasks();
@@ -304,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Asegurarse de que estas funciones estén disponibles globalmente
+ 
 window.renderCategories = renderCategories;
 window.renderTasks = renderTasks;
 window.updateTotals = updateTotals;

@@ -1,10 +1,7 @@
-// Archivo fix-user-data.js
-// Este script corrige el problema de almacenamiento de datos por usuario en EasyTasks
-
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Aplicando corrección para almacenamiento de datos de usuario");
   
-  // Sobrescribir la función saveUserData para asegurarnos que guarda correctamente
+  // Sobrescribir la función saveUserData 
   window.saveUserData = function() {
     const currentUser = loadSession();
     if (currentUser && currentUser.username) {

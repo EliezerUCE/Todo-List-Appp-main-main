@@ -1,8 +1,5 @@
-// login.js - Sistema de autenticación simplificado y robusto para EasyTasks
-
 console.log("Login.js cargado");
 
-// Función para obtener elementos del DOM de forma segura
 function getElement(selector) {
   const element = document.querySelector(selector);
   if (!element) {
@@ -11,7 +8,6 @@ function getElement(selector) {
   return element;
 }
 
-// Elementos del DOM - Usando getElement para evitar errores
 const authWrapper = getElement('.auth-wrapper');
 const loginScreen = getElement('.login-screen');
 const registerScreen = getElement('.register-screen');
@@ -33,7 +29,7 @@ const registerConfirmPassword = getElement('#register-confirm-password');
 // Variables globales
 let users = [];
 
-// Funciones de localStorage simplificadas
+
 function getLocalData(key, defaultValue = null) {
   try {
     const data = localStorage.getItem(key);
@@ -124,22 +120,20 @@ function loadUserData(username) {
 
 // Reemplazar funciones de almacenamiento
 function setupStorageFunctions(username) {
-  // Guardar referencia original si existe
+
   const originalSaveLocal = window.saveLocal;
-  
-  // Definir nueva función saveLocal específica para el usuario
+
   window.saveLocal = function() {
     setLocalData(`easytasks_tasks_${username}`, window.tasks || []);
     setLocalData(`easytasks_categories_${username}`, window.categories || []);
     console.log(`Datos guardados para: ${username}`);
-    
-    // También llamar a la función original si existía
+
     if (typeof originalSaveLocal === 'function') {
       originalSaveLocal();
     }
   };
   
-  // Redefinir getLocal
+
   window.getLocal = function() {
     window.tasks = getLocalData(`easytasks_tasks_${username}`, []);
     window.categories = getLocalData(`easytasks_categories_${username}`, window.categories || []);
@@ -179,8 +173,7 @@ function enterApp(user) {
   if (typeof window.updateTotals === 'function') {
     window.updateTotals();
   }
-  
-  // Seleccionar primera categoría si hay disponibles
+
   if (window.categories && window.categories.length > 0) {
     window.selectedCategory = window.categories[0];
     
@@ -205,13 +198,13 @@ function enterApp(user) {
   console.log(`Usuario ${user.name} ha iniciado sesión correctamente`);
 }
 
-// Salir de la aplicación
+
 function exitApp() {
-  // Guardar datos antes de salir
+
   saveUserData();
   clearSession();
   
-  // Mostrar pantalla de autenticación
+
   if (authWrapper) {
     authWrapper.style.display = '';
     showLoginScreen();
@@ -403,11 +396,9 @@ function initAuth() {
   window.addEventListener('beforeunload', saveUserData);
 }
 
-// Esperamos a que el DOM esté completamente cargado y script.js disponible
 function waitForScriptJs() {
   console.log("Esperando que script.js esté disponible...");
-  
-  // Verificar si las funciones necesarias están disponibles
+
   if (typeof window.renderCategories === 'function' && 
       typeof window.updateTotals === 'function' && 
       typeof window.renderTasks === 'function') {
@@ -419,15 +410,15 @@ function waitForScriptJs() {
   return false;
 }
 
-// Iniciar cuando el DOM esté listo
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log("DOM cargado, iniciando sistema de login");
   
-  // Intentar inicializar inmediatamente
+
   if (!waitForScriptJs()) {
-    // Si no se pudo, intentar cada 100ms
+
     let attempts = 0;
-    const maxAttempts = 50; // 5 segundos máximo
+    const maxAttempts = 50; 
     
     const checkInterval = setInterval(() => {
       attempts++;
@@ -437,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (attempts >= maxAttempts) {
           console.error("No se pudo inicializar el sistema de login: script.js no disponible después de varios intentos");
-          // Intentar inicializar de todos modos como último recurso
+
           initAuth();
         }
       }
@@ -445,11 +436,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// También podemos intentar inicializar cuando la ventana esté completamente cargada
+
 window.addEventListener('load', () => {
   console.log("Ventana cargada completamente");
-  
-  // Si todavía no se ha inicializado, intentar de nuevo
+
   if (authWrapper && authWrapper.style.display !== 'none' && users.length === 0) {
     console.log("Intentando inicializar autenticación después de carga completa");
     waitForScriptJs();
